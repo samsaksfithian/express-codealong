@@ -5,9 +5,18 @@
 const express = require("express");
 const shortid = require("shortid");
 const moment = require("moment");
+const lowdb = require("lowdb");
+const FileSync = require("lowdb/adapters/FileSync");
 const commentData = require("../data");
 
 // ========================================================================
+
+// create the db file if it doesnt exist and seed it with data
+const adapter = new FileSync("db.json", {
+	defaultValue: { comments: commentData, users: {} },
+});
+
+const db = lowdb(adapter);
 
 const router = express.Router();
 
@@ -17,16 +26,18 @@ const router = express.Router();
 
 // get all comments
 router.get("/", (request, response) => {
-	response.json(commentData);
+	const comments = db.get("comments").value();
+	response.json(comments);
 }); // Read All
 
 // ========================================================================
 
 // get a single comment by id
 router.get(`/:id`, (request, response) => {
-	const myComment = commentData.find(
-		comment => comment.id === parseInt(request.params.id, 10),
-	);
+	const myComment = db
+		.get("comments")
+		.find({ id: request.params.id })
+		.value();
 	if (!myComment) {
 		response.status(404).json({ msg: "Invalid ID" });
 	}
@@ -40,25 +51,25 @@ router.get(`/:id`, (request, response) => {
 // create a comment
 router.post("/", (request, response) => {
 	if (!request.body.text) {
-		// BONUS: if request has no body text (or text is empty) send proper error code
 		response
 			.status(400)
 			.json({ msg: "Invalid syntax: please provide comment text" });
 	} // json function ends the call and kicks you out
-	// create a new comment with the text
-	// timestamp: moment()
-	// id should be shortid
 	const newComment = {
 		text: request.body.text,
 		id: shortid.generate(),
 		timestamp: moment().format(),
+		lastUpdated: moment().format(),
 	};
 	// add it to commentData
-	commentData.push(newComment);
+	db.get("comments")
+		.push(newComment)
+		.write();
 	// return all the comments (make sure new comment is included)
-	response
-		.status(201)
-		.json({ msg: "Comment successfully added", comments: commentData });
+	response.status(201).json({
+		msg: "Comment successfully added",
+		comments: db.get("comments").value(),
+	});
 });
 
 // ========================================================================
@@ -66,21 +77,22 @@ router.post("/", (request, response) => {
 // UPDATE
 
 router.patch("/:id", (request, response) => {
-	const myComment = commentData.find(
-		comment => comment.id === parseInt(request.params.id, 10),
-	);
-	if (!myComment) {
-		response.status(404).json({ msg: "Invalid ID" });
-	} else if (!request.body.text) {
-		response
+	if (!request.body.text) {
+		return response
 			.status(400)
 			.json({ msg: "Invalid syntax: please provide comment text" });
 	}
-	myComment.text = request.body.text;
-	myComment.timestamp = moment().format();
-	response.status(200).json({
+	// prettier-ignore
+	if (!db.get('comments').find({ id: request.params.id }).value()) {
+		return response.status(404).json({ msg: "Invalid ID" });
+	}
+	db.get("comments")
+		.find({ id: request.params.id })
+		.assign({ text: request.body.text, lastUpdated: moment().format() })
+		.write();
+	return response.status(200).json({
 		msg: "Comment text and timestamp successfully updated",
-		comment: commentData,
+		comment: db.get("comments").value(),
 	});
 });
 
@@ -89,16 +101,19 @@ router.patch("/:id", (request, response) => {
 // DELETE
 
 router.delete("/:id", (request, response) => {
-	const myCommentIndex = commentData.findIndex(
-		comment => comment.id === parseInt(request.params.id, 10),
-	);
-	if (myCommentIndex < 0) {
-		response.status(404).json({ msg: "Invalid ID" });
+	// prettier-ignore
+	if (!db.get('comments').find({ id: request.params.id }).value()) {
+		return response.status(404).json({ msg: "Invalid ID" });
 	}
-	commentData.splice(myCommentIndex, 1);
+	db.get("comments")
+		.remove({ id: request.params.id })
+		.write();
 	response
 		.status(200)
-		.json({ msg: "Comment successfully removed", comments: commentData });
+		.json({
+			msg: "Comment successfully removed",
+			comments: db.get("comments").value(),
+		});
 });
 
 // ========================================================================
