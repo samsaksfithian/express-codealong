@@ -108,12 +108,10 @@ router.delete("/:id", (request, response) => {
 	db.get("comments")
 		.remove({ id: request.params.id })
 		.write();
-	response
-		.status(200)
-		.json({
-			msg: "Comment successfully removed",
-			comments: db.get("comments").value(),
-		});
+	return response.status(200).json({
+		msg: "Comment successfully removed",
+		comments: db.get("comments").value(),
+	});
 });
 
 // ========================================================================
