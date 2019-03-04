@@ -5,6 +5,7 @@
 require("dotenv").config();
 const express = require("express");
 const path = require("path");
+const cors = require('cors');
 const commentsRouter = require("./routes/comments");
 // const logger = require("./middleware/logger");
 
@@ -17,6 +18,9 @@ const app = express();
 
 // body parser middleware
 app.use(express.json());
+
+// cors middleware
+app.use(cors());
 
 // logger middleware
 // app.use(logger);
