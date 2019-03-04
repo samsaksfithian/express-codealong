@@ -34,7 +34,10 @@ router.get('/', (request, response) => {
       comment.text.toLowerCase().includes(filterText.toLowerCase()),
     );
   }
-  response.status(200).json(comments);
+  response.status(200).json({
+    msg: 'Found comment(s)',
+    comments: comments,
+  });
 }); // Read All
 
 // GET /comments?filter="your text here"
@@ -50,7 +53,10 @@ router.get(`/:id`, (request, response) => {
   if (!myComment) {
     response.status(404).json({ msg: 'Invalid ID' });
   }
-  response.status(200).json(myComment);
+  response.status(200).json({
+    msg: 'Found comment',
+    comments: myComment,
+  });
 }); // Read One
 
 // ========================================================================
