@@ -26,9 +26,18 @@ const router = express.Router();
 
 // get all comments
 router.get('/', (request, response) => {
-  const comments = db.get('comments').value();
-  response.json(comments);
+  console.log(request.query);
+  let comments = db.get('comments').value();
+  if (request.query.filter) {
+    const filterText = request.query.filter;
+    comments = comments.filter(comment =>
+      comment.text.toLowerCase().includes(filterText.toLowerCase()),
+    );
+  }
+  response.status(200).json(comments);
 }); // Read All
+
+// GET /comments?filter="your text here"
 
 // ========================================================================
 
