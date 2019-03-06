@@ -1,0 +1,39 @@
+.message-board-app {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 600px;
+  margin: auto;
+  box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.2);
+}
+
+.message-board-app nav {
+  display: flex;
+  justify-content: center;
+  padding: 15px 20px;
+  background-color: #eff1f3;
+  background-color: hsl(217, 50%, 20%);
+  box-shadow: 0px 2px 6px 0px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.message-board-app .add-comment {
+  padding: 1rem 20px;
+  background-color: #eff1f3;
+}
+
+.message-board-app .add-comment form {
+  display: flex;
+}
+
+.message-board-app .add-comment input {
+  background-color: hsl(217, 10%, 70%);
+  color: hsl(217, 20%, 10%);
+  flex-grow: 1;
+  margin-right: 5px;
+}
+
+.message-board-app .add-comment input::placeholder {
+  color: hsl(217, 20%, 10%);
+  opacity: 0.85;
+}

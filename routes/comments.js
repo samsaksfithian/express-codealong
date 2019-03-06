@@ -24,14 +24,16 @@ const router = express.Router();
 // ========================================================================
 // READ
 
+// GET /comments?filter="your text here"
 // get all comments
 router.get('/', (request, response) => {
   console.log(request.query);
   let comments = db.get('comments').value();
   if (request.query.filter) {
     const filterText = request.query.filter;
-    comments = comments.filter(comment =>
-      comment.text.toLowerCase().includes(filterText.toLowerCase()),
+    // prettier-ignore
+    comments = comments.filter(
+      comment => comment.text.toLowerCase().includes(filterText.toLowerCase()),
     );
   }
   response.status(200).json(comments);
@@ -41,7 +43,6 @@ router.get('/', (request, response) => {
   // });
 }); // Read All
 
-// GET /comments?filter="your text here"
 
 // ========================================================================
 
@@ -101,8 +102,8 @@ router.patch('/:id', (request, response) => {
   }
   // prettier-ignore
   if (!db.get('comments').find({ id: request.params.id }).value()) {
-		return response.status(404).json({ msg: "Invalid ID" });
-	}
+    return response.status(404).json({ msg: "Invalid ID" });
+  }
   db.get('comments')
     .find({ id: request.params.id })
     .assign({ text: request.body.text, lastUpdated: moment().format() })
@@ -120,8 +121,8 @@ router.patch('/:id', (request, response) => {
 router.delete('/:id', (request, response) => {
   // prettier-ignore
   if (!db.get('comments').find({ id: request.params.id }).value()) {
-		return response.status(404).json({ msg: "Invalid ID" });
-	}
+    return response.status(404).json({ msg: "Invalid ID" });
+  }
   db.get('comments')
     .remove({ id: request.params.id })
     .write();
