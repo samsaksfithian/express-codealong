@@ -8,6 +8,7 @@ const moment = require('moment');
 const lowdb = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 const commentData = require('../data');
+const Comment = require('../models/comment.model');
 
 // ========================================================================
 
@@ -27,6 +28,16 @@ const router = express.Router();
 // GET /comments?filter="your text here"
 // get all comments
 router.get('/', (request, response) => {
+  Comment.find()
+    .where('text')
+    .regex(request.query.filter || '')
+    .then(comments => response.json(comments));
+}); // Read All
+
+/*
+// old GET using lowdb
+// GET /comments?filter="your text here"
+router.get('/', (request, response) => {
   console.log(request.query);
   let comments = db.get('comments').value();
   if (request.query.filter) {
@@ -37,12 +48,8 @@ router.get('/', (request, response) => {
     );
   }
   response.status(200).json(comments);
-  // response.status(200).json({
-  //   msg: 'Found comment(s)',
-  //   comments: comments,
-  // });
-}); // Read All
-
+}); // Read All 
+*/
 
 // ========================================================================
 
@@ -69,9 +76,7 @@ router.get(`/:id`, (request, response) => {
 // create a comment
 router.post('/', (request, response) => {
   if (!request.body.text) {
-    response
-      .status(400)
-      .json({ msg: 'Invalid syntax: please provide comment text' });
+    response.status(400).json({ msg: 'Invalid syntax: please provide comment text' });
   } // json function ends the call and kicks you out
   const newComment = {
     text: request.body.text,

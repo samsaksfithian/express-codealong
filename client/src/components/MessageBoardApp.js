@@ -47,9 +47,9 @@ class MessageBoardApp extends React.Component {
 
   handleSearch = searchText => {
     axios
-      .get(
-        `https://ssaksfithian-express-codealong.herokuapp.com/api/comments/?filter=${searchText}`,
-      )
+      .get(`https://ssaksfithian-express-codealong.herokuapp.com/api/comments/`, {
+        params: { filter: searchText },
+      })
       .then(response => this.setState({ comments: response.data }))
       .catch(error => console.error(error));
   };

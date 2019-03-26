@@ -2,14 +2,22 @@
 // ========================================================================
 // imports
 
-require("dotenv").config();
-const express = require("express");
-const path = require("path");
+require('dotenv').config();
+const express = require('express');
+const path = require('path');
 const cors = require('cors');
-const commentsRouter = require("./routes/comments");
+const mongoose = require('mongoose');
+const commentsRouter = require('./routes/comments');
 // const logger = require("./middleware/logger");
 
 // ========================================================================
+
+mongoose.connect(
+  `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${
+    process.env.DB_HOST
+  }/message-board?retryWrites=true`,
+  { useNewUrlParser: true },
+);
 
 const app = express();
 
@@ -26,7 +34,7 @@ app.use(cors());
 // app.use(logger);
 
 // static middleware
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // ========================================================================
 // routing
@@ -40,7 +48,7 @@ Read
 Update				/:id			PUT/Patch
 Delete				/:id			DELETE
 */
-app.use("/api/comments", commentsRouter);
+app.use('/api/comments', commentsRouter);
 
 // ========================================================================
 
