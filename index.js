@@ -8,6 +8,7 @@ const path = require('path');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const commentsRouter = require('./routes/comments');
+const authRouter = require('./routes/auth');
 // const logger = require("./middleware/logger");
 
 // ========================================================================
@@ -38,17 +39,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // ========================================================================
 // routing
-/*
-oururl.com/api/comments
-					Endpoint			Verb
-Create				/				POST
-Read									
-	All				/				GET
-	One				/:id			GET
-Update				/:id			PUT/Patch
-Delete				/:id			DELETE
-*/
+
 app.use('/api/comments', commentsRouter);
+app.use('/api/auth', authRouter);
 
 // ========================================================================
 

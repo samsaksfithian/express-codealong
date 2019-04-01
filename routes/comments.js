@@ -3,21 +3,8 @@
 // Imports
 
 const express = require('express');
-// const shortid = require('shortid');
-const moment = require('moment');
-const lowdb = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
-const commentData = require('../data');
 const Comment = require('../models/comment.model');
-
-// ========================================================================
-
-// create the db file if it doesnt exist and seed it with data
-const adapter = new FileSync('db.json', {
-  defaultValue: { comments: commentData, users: {} },
-});
-
-const db = lowdb(adapter);
+const User = require('../models/user.model');
 
 const router = express.Router();
 
@@ -53,13 +40,16 @@ router.get(`/:id`, (request, response) => {
 
 // create a comment
 router.post('/', (request, response) => {
-  if (!request.body.text) {
+  if (!request.body.text || !request.body.userId) {
     return response
       .status(400)
-      .json({ message: 'Invalid syntax: please provide comment text' });
+      .json({ message: 'Invalid syntax: please provide comment text and a userId' });
   } // json function ends the call and kicks you out
 
-  Comment.create({ text: request.body.text })
+  Comment.create({ text: request.body.text, user: request.body.userId })
+    .then(comment =>
+      User.findByIdAndUpdate(request.body.userId, { $push: { comments: comment._id } }),
+    )
     .then(() => Comment.find())
     .then(comments =>
       response.status(201).json({ message: 'Comment successfully added', comments }),
